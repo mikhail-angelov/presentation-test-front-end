@@ -5,6 +5,15 @@
  *
  * Copyright (C) 2016 Hakim El Hattab, http://hakim.se
  */
+.reveal pre code {
+  display: block;
+  padding: 5px;
+  overflow: auto;
+  max-height: 500px;
+  word-wrap: normal;
+  font-size: 30px;
+  line-height: 1; }
+
 /*********************************************
  * RESET STYLES
  *********************************************/
@@ -46,6 +55,12 @@ body {
   line-height: 1;
   background-color: #fff;
   color: #000; }
+
+html:-webkit-full-screen-ancestor {
+  background-color: inherit; }
+
+html:-moz-full-screen-ancestor {
+  background-color: inherit; }
 
 /*********************************************
  * VIEW FRAGMENTS
@@ -145,10 +160,12 @@ body {
   visibility: visible; }
 
 .reveal .slides section .fragment.highlight-red.visible {
-  color: #ff2c2d; }
+  color: #ff2c2d;
+  font-size: 40px; }
 
 .reveal .slides section .fragment.highlight-green.visible {
-  color: #17ff2e; }
+  color: #17ff2e;
+  font-size: 40px; }
 
 .reveal .slides section .fragment.highlight-blue.visible {
   color: #1b91ff; }
@@ -1143,7 +1160,6 @@ body {
 .reveal .overlay .viewport {
   position: absolute;
   display: -webkit-box;
-  display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
   top: 40px;

@@ -1,0 +1,14 @@
+.ex-slide {
+	top: 0px;
+    display: block;
+    height: 1000px;
+    width: 1500px;
+}
+.ex-slide pre {
+	height: 58%;
+    width: 1400px;
+}
+
+.ex-slide pre code{
+	height: 100%;
+}
