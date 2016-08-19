@@ -1,0 +1,324 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>презентация</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/white.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+		<link rel="stylesheet" href="main.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h1>Тестирование Front-End</h1>
+					<h3>Мысли вслух</h3>
+					<p>
+						<small><a href="http://github.com/mikhail.angelov">Михаил Ангелов</a> / <a href="https://twitter.com/MikhailAngelov">@MikhailAngelov</a></small>
+					</p>
+				</section>
+				<section class="present" style="top: 0px; display: block;">
+					<h2>Особенности FE</h2>
+					<ul>
+						<li>содержат состояние</li>
+						<li>слабо контролируемая среда запуска</li>
+						<li>сильные внешние зависомости</li>
+					</ul>
+				</section>
+				<section class="present" style="top: 0px; display: block;">
+					<img src="chak.png" style="border:0px; background:0000">
+				</section>
+				<section class="present" style="top: 0px; display: block;">
+					<h2>Зачем тестировать</h2>
+					<ul>
+						<li>Быть уверенным  что приложение работает как ожидается</li>
+						<li>Архитектура приложения достаточно хороша чтобы улучшать и расширять приложения</li>
+					</ul>
+				</section>
+
+
+				<section class="present" style="top: 0px; display: block;">
+					<img src="piramid-test.png" style="border:0px; box-shadow: 0 0px;">
+					<p>
+					<a href="http://martinfowler.com/bliki/TestPyramid.html">Пирамида тестов</a>
+					</p>
+				</section>
+				<section class="present" style="top: 0px; display: block;">
+					<h2>Инструменты для тестирования front end</h2>
+					<ul>
+						<li><a href="https://mochajs.org/">Mocha</a></li>
+						<li><a href="http://jasmine.github.io">Jasmin</a>/<a href="http://karma-runner.github.io/">Karma</a></li>
+						<li><a href="http://qunitjs.com">QUnit</a></li>
+					</ul>
+				</section>
+
+				<section class="present" style="top: 0px; display: block;">
+					<img src="map.png" style="border:0px; background:0000">
+				</section>
+
+				<section data-state="customevent">
+					<p>
+						Пример модульного теста (unit test).
+					</p>
+					<pre><code data-trim="" data-noescape="" class="javascript" style="max-height: 600px; font-size: 15px; line-height: 100%;">
+const chai = require('chai')
+const expect = chai.expect
+const reducer = require('../../src/reducers/markers').default
+const actions = require('../../src/actions');
+
+describe('marker reducer',()=>{
+
+    it('should ignore dummy action',()=>{
+        const oldState = 'test'
+        const state = reducer(oldState,{type:'BLA-BLA'})
+        expect(state).to.equal(oldState)
+    })
+
+    it('should handle SEARCH action',()=>{
+        const TERM = 'MERA'
+        const action = actions.search(TERM)
+        const state = reducer(undefined,action)
+
+        expect(state.length).to.equal(1)
+        expect(state[0].name).to.equal(TERM)
+    })
+
+    it('should handle TOGGLE_SIDEMENU action',()=>{
+        const action = actions.toggleSideMenu()
+        const state = reducer(undefined,action)
+
+        expect(state.length > 10).to.equal(true)
+    })
+})
+						</code></pre>
+
+				</section>
+				<section data-state="customevent">
+					<p>
+						Пример компонентного теста (integration test).
+					</p>
+					<pre><code data-trim="" data-noescape="" class="javascript" style="max-height: 600px; font-size: 15px; line-height: 100%;">
+const chai = require('chai')
+const expect = chai.expect
+const React = require('react')
+const ReactTestUtils = require('react-addons-test-utils')
+const SideMenu = require('../../src/components/sideMenu').default
+
+describe('side menu', ()=>{
+    
+    it('should not display Term input if it closed',(done)=>{
+        
+        const component = ReactTestUtils.renderIntoDocument(
+            // 〈SideMenu isOpen={false} onToggle={onClick} /> - does not work for stateless components
+            SideMenu({isOpen:false, onToggle:onClick})
+        );
+
+        expect(ReactTestUtils.isCompositeComponent(component)).to.be.true;
+        const icon = ReactTestUtils.findRenderedDOMComponentWithClass(component, 'searchIcon');
+        const inputs = ReactTestUtils.scryRenderedDOMComponentsWithClass(component, 'term');
+
+        expect(inputs[0]).to.be.undefined;
+
+        ReactTestUtils.Simulate.click(icon)
+
+        function onClick(){
+            done()
+        }
+    })
+})
+						</code></pre>
+
+				</section>
+				<section data-state="customevent">
+					<p>
+						Пример компонентного теста (integration test).
+					</p>
+					<pre><code data-trim="" data-noescape="" class="javascript" style="max-height: 600px; font-size: 15px; line-height: 100%;">
+const chai = require('chai')
+const expect = chai.expect
+const React = require('react')
+const ReactTestUtils = require('react-addons-test-utils')
+const Provider = require('react-redux').Provider
+const configureMockStore = require('redux-mock-store')
+const mockStore = configureMockStore()
+const SideMenu = require('../../src/components/sideMenu').default
+const SideMenuContainer = require('../../src/containers/sideMenuContainer').default
+
+describe('side menu', ()=>{
+
+    it('should display Term input if store has isOpen true',()=>{
+        
+        const store = mockStore({
+            sideMenu: {isOpen:true}
+        });
+        const component = ReactTestUtils.renderIntoDocument(
+            〈Provider store={store}>〈SideMenuContainer/>〈/Provider>
+        );
+        var input = ReactTestUtils.findRenderedDOMComponentWithClass(component, 'term')
+        expect(!!input).to.be.true
+    })
+})
+						</code></pre>
+
+				</section>
+				<section class="present" style="top: 0px; display: block;">
+					<img src="unit-test-titanic.jpg" style="border:0px; background:0000">
+				</section>
+				<section class="present" style="top: 0px; display: block;">
+					<img src="test-on-prod.jpeg" style="border:0px; background:0000">
+				</section>
+				<section data-state="customevent">
+					<p>
+						Пример теста полноценного (end-2-end test).
+					</p>
+					<pre><code data-trim="" data-noescape="" class="javascript" style="max-height: 600px; font-size: 15px; line-height: 100%;">
+const webdriver = require('selenium-webdriver')
+
+const driver = require('./main')
+const sideMenu = require('./pageObject/sideMenu')(driver)
+const By = webdriver.By
+const until = webdriver.until
+const chai = require('chai')
+const expect = chai.expect
+
+beforeEach(()=> driver.navigate().to('http://localhost:3000'))
+    after(()=>driver.quit())
+
+    it('should search stuff', function () {
+
+        sideMenu.isDisplayed()
+        sideMenu.searchIcon().click()
+        sideMenu.isOpen()
+        sideMenu.searchFor('MERA')
+
+        return sideMenu.resultItems().then(list=>{
+            expect(list.length).to.equal(1)
+            return list[0].getText().then(text=>{
+                expect(text).to.equal('MERA')
+            })
+        })
+    })
+})
+						</code></pre>
+
+				</section>
+				<section data-state="customevent">
+					<p>
+						Более красивая версия с генераторами (end-2-end test).
+					</p>
+					<pre><code data-trim="" data-noescape="" class="javascript" style="max-height: 600px; font-size: 15px; line-height: 100%;">
+const webdriver = require('selenium-webdriver')
+
+const driver = require('./main')
+const sideMenu = require('./pageObject/sideMenu')(driver)
+const By = webdriver.By
+const until = webdriver.until
+const chai = require('chai')
+const expect = chai.expect
+
+beforeEach(()=> driver.navigate().to('http://localhost:3000'))
+    after(()=>driver.quit())
+
+    it('should search stuff', function* () {
+
+        sideMenu.isDisplayed()
+        sideMenu.searchIcon().click()
+        sideMenu.isOpen()
+        sideMenu.searchFor('MERA')
+
+        expect(yield sideMenu.resultItems().then(list=>list.length)).to.equal(1)
+        expect(yield sideMenu.resultItems().then(list=>list[0].getText())).to.equal('MERA')
+    });
+})
+						</code></pre>
+
+				</section>
+				<section data-state="customevent">
+					<p>
+						Страничный объект (page object).
+					</p>
+					<pre><code data-trim="" data-noescape="" class="javascript" style="max-height: 600px; font-size: 15px; line-height: 100%;">
+const webdriver = require('selenium-webdriver');
+const By = webdriver.By;
+const until = webdriver.until;
+
+
+module.exports = function(driver) {
+    const elements = {
+        searchIcon: By.css('.searchIcon'),
+        searchText: By.css('.term'),
+        resultList: By.css('.results'),
+        resultItems: By.css('.resultItem'),
+    };
+    return {
+        searchIcon: ()=>driver.findElement(elements.searchIcon),
+        searchText: ()=>driver.findElement(elements.searchText),
+        resultList: ()=>driver.findElement(elements.resultList),
+        resultItems: ()=>driver.findElements(elements.resultItems),
+        isDisplayed: ()=>driver.wait(until.elementLocated(elements.searchIcon)),
+        isOpen: ()=>driver.wait(until.elementLocated(elements.searchText)),
+        isClosed: ()=>driver.wait(until.elementIsNotVisible(elements.searchText)),
+        searchFor: (value) => driver.findElement(elements.searchText).sendKeys(value)
+    };
+};
+						</code></pre>
+
+				</section>
+				<section class="present" style="top: 0px; display: block;">
+					<img src="ut-works.jpg" style="border:0px; background:0000">
+				</section>
+				<section style="text-align: left;">
+					<h3>Спасибо за внимание</h3>
+					<p>
+						<a href="https://twitter.com/MikhailAngelov">@MikhailAngelov</a></small>
+					</p>
+					<p>
+						<a href="https://mikhail-angelov.github.io/presentation-test-front-end">ссылка на презентацию</a>
+					</p>
+				</section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				history: true,
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				],
+				width: 1000,
+			    height: 600,
+
+			    // Factor of the display size that should remain empty around the content
+			    margin: 0.1,
+
+			    // Bounds for smallest/largest possible scale to apply to content
+			    minScale: 1.0,
+			    maxScale: 1.5
+			});
+		</script>
+	</body>
+</html>
